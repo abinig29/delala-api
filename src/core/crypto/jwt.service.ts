@@ -28,21 +28,32 @@ export class CustomJwtService {
     }) as JwtPayload;
   }
 
+
   public async signAccessToken(payload: any) {
-    const token = sign(payload, this.configurationService.get('JWT_ACCESS_SECRET'), {
-      expiresIn: this.configurationService.get('JWT_EXPIRY_TIME'),
-      algorithm: 'HS256',
-    });
-    return token;
+    const secret = this.configurationService.getAccessSignToken()
+
+    try {
+      const token = sign(payload,
+        secret,
+        {
+          expiresIn: `${this.configurationService.getNumber('JWT_EXPIRY_TIME')}m`,
+          algorithm: 'HS256',
+        });
+      return token;
+    } catch (error) {
+
+    }
+
+
   }
 
   public async verifyAccessToken(token: string) {
+
     try {
-      const decoded = await verify(token, this.configurationService.get('JWT_ACCESS_SECRET'), {
+      const decoded = verify(token, this.configurationService.get('JWT_ACCESS_SECRET'), {
         algorithms: ['HS256'],
         complete: true,
       });
-
       return decoded.payload;
     } catch (e) {
       this.logger.error(e)
@@ -52,7 +63,7 @@ export class CustomJwtService {
 
   public async signRefreshToken(payload: any) {
     const token = sign(payload, this.configurationService.get('JWT_REFRESH_SECRET'), {
-      expiresIn: this.configurationService.get('JWT_REFRESH_EXPIRY_TIME'),
+      expiresIn: `${this.configurationService.get('JWT_REFRESH_EXPIRY_TIME')}d`,
       algorithm: 'HS256',
     });
     return token

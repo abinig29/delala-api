@@ -40,8 +40,7 @@ export namespace Utility {
 
   export function removeTrailingSlash(content: string): string {
     const REGEX_SLASH = /\/$/g
-
-    return content.replace(REGEX_SLASH, '')
+    return content?.replace(REGEX_SLASH, '')
   }
 
   export function isEmpty(value: string | string[]): boolean {

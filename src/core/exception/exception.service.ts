@@ -53,7 +53,6 @@ export class ExceptionService {
 
   getPayload(exception: Exception): { code: number; message: string } {
     const payload = exception.getResponse() as any
-
     return payload
   }
 }

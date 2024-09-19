@@ -11,6 +11,10 @@ export class ConfigurationService {
     return this.manager.get(key, valueDefault)
   }
 
+  getAccessSignToken() {
+    return this.manager.get(ConfigurationServiceObject.Key.ACCESS_TOKEN)
+  }
+
   getPort(): number {
     return this.manager.get(ConfigurationServiceObject.Key.PORT, 3099)
   }

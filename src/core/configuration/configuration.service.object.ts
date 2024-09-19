@@ -4,6 +4,7 @@ export namespace ConfigurationServiceObject {
     ENVIRONMENT = 'NODE_ENV',
     CLIENT_BASE_URL = 'SERVER_CLIENT_BASE_URL',
     BASE_URL = 'SERVER_BASE_URL',
+    ACCESS_TOKEN = "JWT_ACCESS_SECRET"
   }
 
   export enum Environment {

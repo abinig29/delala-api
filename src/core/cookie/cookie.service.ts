@@ -26,24 +26,25 @@ export class CookieService {
   }
 
   private getOptions(): CookieOptions {
+    const REFRESH_TOKEN_EXP = this.configurationService.getNumber("JWT_REFRESH_EXPIRY_TIME")
     const options: Record<
       ConfigurationServiceObject.Environment,
       CookieOptions
     > = {
       [ConfigurationServiceObject.Environment.DEVELOPMENT]: {
-        maxAge: SystemConst.REFRESH_TOKEN_EXP,
+        maxAge: 24 * 60 * 60 * 1000 * REFRESH_TOKEN_EXP,
         secure: true,
         httpOnly: false,
         sameSite: 'lax',
       },
       [ConfigurationServiceObject.Environment.PRODUCTION]: {
-        maxAge: SystemConst.REFRESH_TOKEN_EXP,
+        maxAge: 24 * 60 * 60 * 1000 * REFRESH_TOKEN_EXP,
         secure: true,
         httpOnly: true,
         sameSite: 'none',
       },
       [ConfigurationServiceObject.Environment.STAGING]: {
-        maxAge: SystemConst.REFRESH_TOKEN_EXP,
+        maxAge: REFRESH_TOKEN_EXP,
         secure: true,
         httpOnly: true,
         sameSite: 'none',

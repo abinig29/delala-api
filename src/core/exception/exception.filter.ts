@@ -16,7 +16,6 @@ export class ExceptionFilter implements NestExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
-
     const { status, message, data } = this.getErrorResponse(exception);
 
     response.status(status).json({
@@ -61,7 +60,7 @@ export class ExceptionFilter implements NestExceptionFilter {
     return {
       status: 422, // Unprocessable Entity
       message: 'Prisma validation error',
-      data: exception.message.replaceAll(/\n/g, ' '),
+      data: exception.message.replace(/\n/g, ' '),
     };
   }
 

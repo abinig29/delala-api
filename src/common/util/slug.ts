@@ -8,7 +8,7 @@ export const generateSlug = (title: string, random = true) => {
         .toString()
         .padStart(4, '0');
     if (!random) randomPart = '';
-    return `${timestamp}-${randomPart}-${first10}`;
+    return `${first10}-${timestamp}-${randomPart}`;
 };
 
 export const removeSubArr = (mainArr: string[], arrToBeRemoved: string[]) => {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { OAuth2Client } from 'google-auth-library'
 import { ConfigurationService } from '../../core/configuration'
 import { Logger, LoggerService } from '../logger'
+import { GoogleVerify } from './google.interface'
 
 @Injectable()
 export class GoogleService {
@@ -33,7 +34,7 @@ export class GoogleService {
     }
   }
 
-  async verifyToken(token: string): Promise<any> {
+  async verifyToken(token: string): Promise<GoogleVerify> {
     const ticket = await this.client.verifyIdToken({
       idToken: token,
       audience: this.clientId,

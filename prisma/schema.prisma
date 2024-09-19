@@ -12,3 +12,265 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum RoleType {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVE
+}
+
+enum ACCOUNT_STATUS {
+  REGISTERED
+  EMAIL_VERIFIED
+}
+
+model User {
+  id                      String         @id @default(uuid())
+  email                   String         @unique
+  password                String?
+  fullName                String?        @map("full_name")
+  firstTimeLogin          Boolean        @default(true) @map("first_time_togin")
+  role                    RoleType       @default(USER)
+  hashedRefreshToken      String?        @map("hashed_refresh_token")
+  verificationCodeHash    String?        @map("verification_code_hash")
+  verificationCodeExpires BigInt?        @map("verification_code_expires")
+  accountStatus           ACCOUNT_STATUS @default(REGISTERED)
+  active                  Boolean        @default(true)
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @default(now()) @updatedAt
+
+  profile Profile?
+  Product Product[]
+
+  @@index([email], name: "user_email_idx")
+}
+
+model Profile {
+  id      String  @id @default(uuid())
+  phone   String? @unique
+  avatar  String?
+  address String?
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String? @unique
+
+  @@index([phone], name: "profile_phone_idx")
+}
+
+model Product {
+  id             String          @id @default(uuid())
+  name           String
+  description    String?
+  features       String?
+  slug           String          @unique
+  images         String[]
+  status         ProductStatus   @default(DRAFT)
+  adminStatus    AdminStatus     @default(PENDING)
+  category       ProductCategory
+  propertyDetail PropertyDetail?
+  vehicleDetail  VehicleDetails?
+  jobDetail      JobDetails?
+  serviceDetail  ServiceDetails?
+
+  totalViews Int    @default(0)
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  classifiedDetail ClassifiedDetails?
+  Inquiry          Inquiry[]
+
+  @@index([status])
+}
+
+enum ProductCategory {
+  PROPERTY
+  VEHICLE
+  JOB
+  SERVICE
+  CLASSIFIED
+}
+
+enum AdminStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  LAND
+  COMMERCIAL
+  VILLA
+  OTHER
+}
+
+enum ProductIntent {
+  FOR_SALE
+  FOR_RENT
+}
+
+enum FurnishingStatus {
+  FURNISHED
+  SEMI_FURNISHED
+  UNFURNISHED
+}
+
+model PropertyDetail {
+  id         String            @id @default(uuid())
+  product    Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String            @unique
+  type       PropertyType
+  intent     ProductIntent
+  price      Float
+  location   String
+  bedrooms   Int?
+  bathrooms  Int?
+  furnishing FurnishingStatus?
+  area       Float?
+}
+
+enum VehicleType {
+  CAR
+  MOTORCYCLE
+  TRUCK
+  BUS
+  OTHER
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
+enum TransmissionType {
+  AUTOMATIC
+  MANUAL
+}
+
+enum VehicleCondition {
+  NEW
+  USED
+}
+
+model VehicleDetails {
+  id           String            @id @default(uuid())
+  product      Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String            @unique
+  type         VehicleType
+  make         String
+  model        String
+  year         Int?
+  price        Float
+  fuelType     FuelType?
+  transmission TransmissionType?
+  mileage      Float?
+  condition    VehicleCondition?
+}
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+  FREELANCE
+  TEMPORARY
+  VOLUNTEER
+}
+
+model JobDetails {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique
+
+  company     String?
+  location    String?
+  salary      Float?
+  type        JobType
+  description String?
+}
+
+model ServiceDetails {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique
+  price     Float
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+}
+
+model ClassifiedDetails {
+  id        String  @id @default(uuid())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @unique
+  price     Float
+
+  category   MainCategory? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String?
+
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  subCategoryId String?
+
+  lastCategory   LastCategory? @relation(fields: [lastCategoryId], references: [id], onDelete: Cascade)
+  lastCategoryId String?
+}
+
+model Service {
+  id            String           @id @default(uuid())
+  name          String
+  icon          String?
+  ServiceDetais ServiceDetails[]
+}
+
+model MainCategory {
+  id               String              @id @default(uuid())
+  name             String
+  image            String?
+  subCategories    SubCategory[]
+  ClassifiedDetais ClassifiedDetails[]
+}
+
+model SubCategory {
+  id               String              @id @default(uuid())
+  name             String
+  mainCategoryId   String
+  mainCategory     MainCategory        @relation(fields: [mainCategoryId], references: [id])
+  lastCategories   LastCategory[]
+  ClassifiedDetais ClassifiedDetails[]
+}
+
+model LastCategory {
+  id               String              @id @default(uuid())
+  name             String
+  subCategoryId    String
+  subCategory      SubCategory         @relation(fields: [subCategoryId], references: [id])
+  ClassifiedDetais ClassifiedDetails[]
+}
+
+model Inquiry {
+  id        String        @id @default(uuid())
+  name      String
+  phone     String
+  email     String
+  note      String?
+  status    InquiryStatus @default(PENDING)
+  product   Product       @relation(fields: [productId], references: [id])
+  productId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum InquiryStatus {
+  PENDING
+  ANSWERED
+}

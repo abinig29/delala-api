@@ -6,7 +6,7 @@ import { Logger, LoggerService } from '../../../../logger'
 import { EmailSender } from '../../email.type'
 import { Provider, SendOptions } from '../provider'
 import path from 'path'
-import * as hbs from 'nodemailer-express-handlebars';
+import ejs from 'ejs' 
 
 @Injectable()
 export class NodemailerProvider implements Provider {
@@ -21,12 +21,9 @@ export class NodemailerProvider implements Provider {
     this.initialize()
   }
 
-
   private initialize() {
     try {
-      const host =
-        this.configurationService.get('SMTP_HOST') ??
-        'smtp.gmail.com'
+      const host = this.configurationService.get('SMTP_HOST') ?? 'smtp.gmail.com'
       const port = this.configurationService.getNumber('SMTP_PORT')
       const service = this.configurationService.get('SMTP_SERVICE')
       const mail = this.configurationService.get('SMTP_MAIL')
@@ -40,7 +37,6 @@ export class NodemailerProvider implements Provider {
           user: mail,
           pass: password,
         },
-
       })
 
       this.logger.success(`Nodemailer is active (${host}:${port})`)
@@ -53,31 +49,23 @@ export class NodemailerProvider implements Provider {
     const from = EmailSender.default
 
     for (const to of options.to) {
-      const mailOptions = {
-        from: `${from.name} <${from.email}>`,
-        to: to.email,
-        subject: options.subject,
-        template: options?.type,
-      };
-      const hbsOptions = {
-        viewEngine: {
-          extName: '.hbs',
-          partialsDir: path.join(__dirname, './templates/'),
-          layoutsDir: path.join(__dirname, './templates/'),
-          defaultLayout: '',
-        },
-        viewPath: path.join(__dirname, './templates/'),
-      };
-      this.client.use('compile', hbs(hbsOptions));
-      await this.client
-        .sendMail(mailOptions)
-        .then(result => {
-          this.logger.log(`Emails sent to EMAIL:${to.email} `)
-        })
-        .catch(error => {
-          this.logger.error(`Could not send emails (${error.statusCode})`)
-          this.logger.error(error)
-        })
+      try {
+        // Define the template path and data
+        const templatePath = path.join(__dirname, './templates/', `${options?.type}.ejs`)
+        const data = options.variables
+        const html = await ejs.renderFile(templatePath, data)
+
+        const mailOptions = {
+          from: `${from.name} <${from.email}>`,
+          to: to.email,
+          subject: options.subject,
+          html,
+        }
+        await this.client.sendMail(mailOptions)
+        this.logger.log(`Emails sent to EMAIL: ${to.email}`)
+      } catch (error) {
+        this.logger.error(`Could not send emails: ${error.message}`)
+      }
     }
   }
 }

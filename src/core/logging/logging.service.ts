@@ -22,6 +22,8 @@ export class LoggingService {
     const method = RequestHelper.getMethod(request)
     const userId = request["user"]?.userId
 
+
+
     // const authenticationPayload = this.userService.findUserById(userId)
 
     // const email = authenticationPayload?.user?.email ?? '???@???.com'
