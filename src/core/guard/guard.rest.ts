@@ -18,6 +18,7 @@ export class JwtGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = this.getRequest<IncomingMessage & { user?: Record<string, unknown> }>(context);
     const token = this.getToken(request);
+    console.log({ token })
     const user: UserFromToken = (await this.jwtService.verifyAccessToken(token as string)) as UserFromToken;
     if (!user) this.guardException.tokenExpired()
     request.user = user as any;

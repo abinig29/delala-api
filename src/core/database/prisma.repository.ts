@@ -14,7 +14,6 @@ export class PrismaGenericRepository<T> {
         pagination: PaginationInputs,
         include?: Record<string, any>
     ): Promise<PaginatedResponse<T>> {
-        console.log({ pagination })
         const {
             page = 1,
             limit = 10,

@@ -33,8 +33,8 @@ export class ProductByUserController {
 
 
 
-  @Get("/my")
-  @Roles(RoleType.ADMIN)
+  @Get("/user/my")
+  @Roles(RoleType.USER)
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Fetch all my products' })

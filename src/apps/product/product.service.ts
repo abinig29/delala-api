@@ -258,14 +258,14 @@ export class ProductService {
                     }),
                     ... (category === "JOB" && jobInfo && {
                         jobDetail: {
-                            create: {
+                            update: {
                                 ...jobInfo
                             }
                         }
                     }),
                     ... (category === "SERVICE" && serviceInfo && {
                         serviceDetail: {
-                            create: {
+                            update: {
                                 ... (serviceInfo?.price && { price: serviceInfo?.price, }),
                                 ...  (serviceInfo?.serviceId && {
                                     service: {
@@ -279,7 +279,7 @@ export class ProductService {
                     }),
                     ... (category === "CLASSIFIED" && classifiedInfo && {
                         classifiedDetail: {
-                            create: {
+                            update: {
                                 ... (classifiedInfo?.price && { price: classifiedInfo?.price, }),
                                 ...(classifiedInfo?.categoryId && {
                                     category: {
@@ -309,7 +309,6 @@ export class ProductService {
                 },
 
             })
-            console.log({ product })
             return Succeed(product)
         } catch (e) {
             return FAIL(e.message, 500);

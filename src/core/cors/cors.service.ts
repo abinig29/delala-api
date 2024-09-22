@@ -11,6 +11,7 @@ export class CorsService {
 
   getOptions() {
     const clientBaseUrl = this.configurationService.getClientBaseUrl()
+    console.log({ clientBaseUrl })
 
     const options: Record<ConfigurationServiceObject.Environment, CorsOptions> =
     {

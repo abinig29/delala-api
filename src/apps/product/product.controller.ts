@@ -109,7 +109,7 @@ export class ProductController {
 
 
   @Delete(':id')
-  @Roles(RoleType.ADMIN)
+  @Roles(RoleType.USER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a product by ID' })
   @ApiResponse({

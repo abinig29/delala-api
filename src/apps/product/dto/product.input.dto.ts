@@ -103,9 +103,6 @@ export class CreateVehicleDetailsDto {
     @IsNumber()
     mileage: number;
 
-    @ApiProperty({ description: 'Color of the vehicle' })
-    @IsString()
-    color: string;
 
     @ApiProperty({ enum: VehicleCondition, description: 'Condition of the vehicle (new or used)' })
     @IsEnum(VehicleCondition)
@@ -171,7 +168,7 @@ export class CreateProductDto {
 
     @ApiProperty({ description: 'Array of image URLs for the product', type: [String], example: ["https://th.bing.com/th/id/OIP.prNDA8k-tl9i_UXvUiWCVQHaEC?w=307&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7"] })
     @IsArray()
-    @IsUrl({}, { each: true })
+    @IsString({ each: true })
     images: string[];
 
     @ApiPropertyOptional({ enum: ProductStatus, description: 'Status of the product' })
