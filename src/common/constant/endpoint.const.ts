@@ -3,5 +3,7 @@ export enum Endpoint {
   Profile = 'profile',
   Auth = 'auth',
   Product = "product",
-  Inquiry = "inquiry"
+  Inquiry = "inquiry",
+  Service = "service",
+  Classified = "classified"
 }

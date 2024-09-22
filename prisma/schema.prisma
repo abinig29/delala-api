@@ -72,10 +72,12 @@ model Product {
   status         ProductStatus   @default(DRAFT)
   adminStatus    AdminStatus     @default(PENDING)
   category       ProductCategory
+  
   propertyDetail PropertyDetail?
   vehicleDetail  VehicleDetails?
   jobDetail      JobDetails?
   serviceDetail  ServiceDetails?
+  classifiedDetail ClassifiedDetails?
 
   totalViews Int    @default(0)
   userId     String
@@ -83,7 +85,6 @@ model Product {
 
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
-  classifiedDetail ClassifiedDetails?
   Inquiry          Inquiry[]
 
   @@index([status])
@@ -243,7 +244,7 @@ model SubCategory {
   id               String              @id @default(uuid())
   name             String
   mainCategoryId   String
-  mainCategory     MainCategory        @relation(fields: [mainCategoryId], references: [id])
+  mainCategory     MainCategory        @relation(fields: [mainCategoryId], references: [id], onDelete: Cascade)
   lastCategories   LastCategory[]
   ClassifiedDetais ClassifiedDetails[]
 }
@@ -252,7 +253,7 @@ model LastCategory {
   id               String              @id @default(uuid())
   name             String
   subCategoryId    String
-  subCategory      SubCategory         @relation(fields: [subCategoryId], references: [id])
+  subCategory      SubCategory         @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
   ClassifiedDetais ClassifiedDetails[]
 }
 
@@ -263,7 +264,7 @@ model Inquiry {
   email     String
   note      String?
   status    InquiryStatus @default(PENDING)
-  product   Product       @relation(fields: [productId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 
   createdAt DateTime @default(now())

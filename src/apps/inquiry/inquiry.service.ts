@@ -16,7 +16,7 @@ export class InquiryService {
     private exception: InquiryException,
     private prismaService: PrismaService,
   ) {
-    this.inquiryRepository = new PrismaGenericRepository(this.prismaService.product);
+    this.inquiryRepository = new PrismaGenericRepository(this.prismaService.inquiry);
   }
 
   async create(createInquiryDto: CreateInquiryDto): Promise<Resp<ExtendedInquiry>> {
@@ -47,7 +47,7 @@ export class InquiryService {
     filter: any,
     pagination: PaginationInputs,
   ): Promise<PaginatedResponse<ExtendedInquiry>> {
-    const fieldsToSearch = ['fullName', 'email'];
+    const fieldsToSearch = ['name', 'email'];
     const data = await this.inquiryRepository.filterAndSearchManyAndPaginate(
       filter,
       fieldsToSearch,
@@ -90,7 +90,7 @@ export class InquiryService {
   async removeInquiry(id: string) {
     try {
       await this.findOneByIdOrFail(id)
-      await this.prismaService.product.delete({
+      await this.prismaService.inquiry.delete({
         where: { id }
       })
       return Succeed(true)

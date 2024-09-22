@@ -42,6 +42,7 @@ export class GoogleByAuthenticationController {
     @Body() body: GoogleByAuthenticationCallbackDto,
     @Res({ passthrough: true }) response: Response,
   ): Promise<AuthTokenResponse> {
+    console.log({ body })
     const { name, email } = await this.googleService
       .verifyToken(body.token)
       .catch(error => this.exception.invalidGoogleToken(error))

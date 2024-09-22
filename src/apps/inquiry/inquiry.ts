@@ -70,7 +70,7 @@ export class InquiryController {
 
 
   @Patch(':id/status')
-  @Roles(RoleType.ADMIN)
+  @Roles(RoleType.USER)
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update product admin status' }) // Summary for the operation
@@ -91,7 +91,7 @@ export class InquiryController {
       },
     },
   })
-  async update(@Param('id') id: string, @Body() updateInquiryDto: UpdateInquiryStatusDto) {
+  async update(@Param('id') id: string, @Body() updateInquiryDto: UpdateInquiryStatusDto): Promise<ExtendedInquiry> {
     const res = await this.inquiryService.updateInquiryStatus(id, updateInquiryDto);
     if (!res.ok) throw new HttpException(res.errMessage, res.code);
     return res?.val

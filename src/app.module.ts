@@ -19,6 +19,10 @@ import { ProductModule } from './apps/product/product.module';
 import { InquiryModule } from './apps/inquiry/inquiry.module';
 import { UploadModule } from './libraries/upload';
 import { UploadApplicationModule } from './apps/upload/upload.module';
+import { ServiceModule } from './apps/service/service.module';
+import { ClassifiedModule } from './apps/classified/classified.module';
+
+
 
 @Module({
   imports: [
@@ -41,6 +45,8 @@ import { UploadApplicationModule } from './apps/upload/upload.module';
     ProductModule,
     InquiryModule,
     UploadModule,
+    ClassifiedModule,
+    ServiceModule,
     UploadApplicationModule
   ],
   controllers: [],

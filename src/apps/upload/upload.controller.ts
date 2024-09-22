@@ -10,7 +10,7 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(@UploadedFile() file: UploadFileType) {
     const response = await this.uploadService.uploadPublic(file)
-    const url = response.url
+    const url = response.url.replace(/\\/g, '/')
     return { url }
   }
 }
