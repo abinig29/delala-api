@@ -57,7 +57,7 @@ export class GoogleByAuthenticationController {
     } catch (error) {
       await this.register(usr?.email, usr?.firstName + " " + usr?.lastName)
     }
-    return res.redirect(`${this.configService.get('SERVER_GOOGLE_CLIENT_SECRET')}/authenticating?token=${usr?.accessToken}&email=${usr?.email}`);
+    return res.redirect(`${this.configService.get('SERVER_CLIENT_BASE_URL')}/authenticating?token=${usr?.accessToken}&email=${usr?.email}`);
   }
 
   private async register(
