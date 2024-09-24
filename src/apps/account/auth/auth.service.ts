@@ -8,7 +8,7 @@ import { AuthenticationApplicationException } from './auth.exception';
 import { EventService } from 'src/libraries/event';
 import { AuthenticationApplicationEvent } from './auth.event';
 import { RespConst, ResponseConst } from 'src/common/constant/response.const';
-import { RoleType, User } from '@prisma/client';
+import { AUTH_PROVIDER, RoleType, User } from '@prisma/client';
 import { UserRes } from 'src/common/dto/resp.user.dto';
 import { AuthToken, AuthTokenResponse } from './dto/auth.response.dto';
 import { removeKeys } from '@/common/util/object';
@@ -53,6 +53,7 @@ export class AuthService {
             const hashedPassword = await this.cryptoService.createHash(input.password);
             const user = await this.usersService.registerUser({
                 ...input,
+                authProvider: AUTH_PROVIDER.CREDENTIAL,
                 password: hashedPassword,
             })
             const res = await this.sendCodeAndUpdateHash(user?.id);
@@ -139,10 +140,11 @@ export class AuthService {
             userToVerify.verificationCodeHash,
             code,
         );
+        console.log({ verificationCodeHashMatch })
         if (!verificationCodeHashMatch)
-            this.exception.invalidCodeVerification()
+            return this.exception.invalidCodeVerification()
         if (userToVerify.verificationCodeExpires < Date.now())
-            this.exception.expiredCodeVerification()
+            return this.exception.expiredCodeVerification()
         return userToVerify;
     }
 
@@ -175,6 +177,7 @@ export class AuthService {
     async loginValidateUser(input: LoginUserInput): Promise<Partial<User>> {
         const { email, password } = input;
         const userToLogin = await this.usersService.findOneByEmailOrFail(email);
+        if (userToLogin?.authProvider != AUTH_PROVIDER.CREDENTIAL) this.exception.invalidAuthProvider()
         const pwdHashMatch = await this.cryptoService.verifyHash(userToLogin.password, password);
         if (!pwdHashMatch) this.exception.userPasswordNotFound(email)
         return userToLogin;
@@ -257,8 +260,7 @@ export class AuthService {
 
 
     async resetPassword(input: ResetPasswordInput) {
-        const verifyToResetPwd = await this.verifyCode(input.email, input.code);
-
+        await this.verifyCode(input.email, input.code);
         const hashedPwd = await this.cryptoService.createHash(input.newPassword);
         const usr = await this.usersService.upsertOne(
             { email: input.email },

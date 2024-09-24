@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, UseGu
 import { InquiryService } from './inquiry.service';
 import { Endpoint, UserFromToken } from '@/common/constant';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateInquiryDto, FilterInquiryWithPagination, UpdateInquiryStatusDto } from './dto/inquiry.input.dto';
+import { BulkDeleteInquiryDto, CreateInquiryDto, FilterInquiryWithPagination, UpdateInquiryStatusDto } from './dto/inquiry.input.dto';
 import { RoleType } from '@prisma/client';
 import { Roles } from '@/core/guard/roles.decorators';
 import { CurUser, JwtGuard } from '@/core/guard';
 import { pagiKeys, PaginatedResponse } from '@/common/dto/pagination.dto';
 import { ExtendedInquiry } from './inquiry.type';
 import { pickKeys, removeKeys } from '@/common/util/object';
+import { ProductOwnerGuard } from '../product/guard/product.guard';
 
 @Controller(Endpoint.Inquiry)
 @ApiTags(Endpoint.Inquiry)
@@ -98,7 +99,27 @@ export class InquiryController {
   }
 
 
-
+  @Delete('bulk-delete')
+  @Roles(RoleType.USER)
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk delete inquiries by IDs' })
+  @ApiBody({
+    type: BulkDeleteInquiryDto
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'The inquiries have been successfully deleted.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Some inquiries not found.'
+  })
+  async bulkDelete(@Body() bulkDeleteInquiryDto: BulkDeleteInquiryDto) {
+    const res = await this.inquiryService.bulkDeleteInquiries(bulkDeleteInquiryDto.ids);
+    if (!res.ok) throw new HttpException(res.errMessage, res.code);
+    return res?.val;
+  }
 
 
   @Delete(':id')
@@ -116,4 +137,9 @@ export class InquiryController {
     if (!res.ok) throw new HttpException(res.errMessage, res.code);
     return res?.val
   }
+
+
+
+
+
 }

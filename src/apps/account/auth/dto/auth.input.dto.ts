@@ -117,11 +117,20 @@ export class ChangePasswordInput {
 
 
 
-export class GoogleByAuthenticationCallbackDto {
+export class GoogleByAuthenticationDto {
+    @ApiProperty({
+        description: 'The email you receive from google',
+    })
+    @IsString()
+    @IsNotEmpty()
+    email: string
+
     @ApiProperty({
         description: 'The token you receive from google',
     })
     @IsString()
     @IsNotEmpty()
     token: string
+
+
 }

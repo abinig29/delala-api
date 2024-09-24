@@ -16,7 +16,7 @@ export class CorsService {
     const options: Record<ConfigurationServiceObject.Environment, CorsOptions> =
     {
       [ConfigurationServiceObject.Environment.DEVELOPMENT]: {
-        origin: [clientBaseUrl],
+        origin: [clientBaseUrl,"https://delala.vercel.app"],
         credentials: true,
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         allowedHeaders: 'Content-Type, Authorization',

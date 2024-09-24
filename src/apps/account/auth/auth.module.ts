@@ -6,18 +6,26 @@ import { UserModule } from '../user/user.module';
 import { CryptoModule } from '@/core/crypto';
 import { GoogleByAuthenticationController } from './authentication.google.controller';
 import { GoogleModule } from '@/libraries/google';
+import { PassportModule } from '@nestjs/passport';
+import { GoogleStrategy } from './strategies/google.strategy'; // assuming you have this folder
+
 
 @Module({
     imports: [
         UserModule,
         CryptoModule,
-        GoogleModule
+        GoogleModule,
+        PassportModule.register({ defaultStrategy: 'google' })
     ],
     providers: [
         AuthService,
         AuthenticationApplicationException,
+        GoogleStrategy
 
     ],
     controllers: [AuthController, GoogleByAuthenticationController]
 })
 export class AuthModule { }
+
+
+

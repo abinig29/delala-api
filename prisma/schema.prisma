@@ -30,6 +30,11 @@ enum ACCOUNT_STATUS {
   EMAIL_VERIFIED
 }
 
+enum AUTH_PROVIDER {
+  CREDENTIAL
+  GOOGLE
+}
+
 model User {
   id                      String         @id @default(uuid())
   email                   String         @unique
@@ -42,6 +47,7 @@ model User {
   verificationCodeExpires BigInt?        @map("verification_code_expires")
   accountStatus           ACCOUNT_STATUS @default(REGISTERED)
   active                  Boolean        @default(true)
+  authProvider            AUTH_PROVIDER? @default(CREDENTIAL)
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @default(now()) @updatedAt
 
@@ -63,29 +69,29 @@ model Profile {
 }
 
 model Product {
-  id             String          @id @default(uuid())
-  name           String
-  description    String?
-  features       String?
-  slug           String          @unique
-  images         String[]
-  status         ProductStatus   @default(DRAFT)
-  adminStatus    AdminStatus     @default(PENDING)
-  category       ProductCategory
-  
-  propertyDetail PropertyDetail?
-  vehicleDetail  VehicleDetails?
-  jobDetail      JobDetails?
-  serviceDetail  ServiceDetails?
+  id          String          @id @default(uuid())
+  name        String
+  description String?
+  features    String?
+  slug        String          @unique
+  images      String[]
+  status      ProductStatus   @default(DRAFT)
+  adminStatus AdminStatus     @default(PENDING)
+  category    ProductCategory
+
+  propertyDetail   PropertyDetail?
+  vehicleDetail    VehicleDetails?
+  jobDetail        JobDetails?
+  serviceDetail    ServiceDetails?
   classifiedDetail ClassifiedDetails?
 
   totalViews Int    @default(0)
   userId     String
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  Inquiry          Inquiry[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Inquiry   Inquiry[]
 
   @@index([status])
 }

@@ -30,11 +30,13 @@ export class EmailService {
     this.logger = this.loggerService.create({ name: 'EmailService' })
     const isProductionOrStaging = this.configurationService.isEnvironmentProduction() || this.configurationService.isEnvironmentStaging()
 
-    if (isProductionOrStaging) {
-      this.provider = this.mailjetProvider
-    } else {
-      this.provider = this.nodemailerProvider
-    }
+    // if (isProductionOrStaging) {
+    //   this.provider = this.mailjetProvider
+    // } else {
+    //   this.provider = this.nodemailerProvider
+    // }
+
+    this.provider = this.nodemailerProvider
   }
   async send(options: SendOptions): Promise<void> {
     return this.provider

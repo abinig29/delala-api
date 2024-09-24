@@ -22,7 +22,7 @@ import { EventService } from '@/libraries/event';
 import { ProductApplicationEvent } from './product.event';
 import { ExtendedProduct } from './dto/product.type';
 import { generateSlug } from '@/common/util/slug';
-import { CreateProductDto, FilterProductWithPagination, ProductDto, UpdateProductAdminStatusDto, UpdateProductDto } from './dto/product.input.dto';
+import { BulkDeleteProductDto, CreateProductDto, FilterProductWithPagination, ProductDto, UpdateProductAdminStatusDto, UpdateProductDto } from './dto/product.input.dto';
 import { ProductOwnerGuard } from './guard/product.guard';
 
 
@@ -106,6 +106,30 @@ export class ProductController {
     const res = await this.productService.findPopulatedByIdOrFail(id);
     return res;
   }
+
+  @Delete('bulk-delete')
+  @Roles(RoleType.USER)
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Bulk delete products by IDs' })
+  @ApiBody({
+    type: BulkDeleteProductDto
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'The products have been successfully deleted.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Some products not found.'
+  })
+  async bulkDelete(@Body() bulkDeleteInquiryDto: BulkDeleteProductDto) {
+    const res = await this.productService.bulkDeleteProducts(bulkDeleteInquiryDto.ids);
+    if (!res.ok) throw new HttpException(res.errMessage, res.code);
+    return res?.val;
+  }
+
+
 
 
   @Delete(':id')

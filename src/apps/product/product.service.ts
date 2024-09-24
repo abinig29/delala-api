@@ -328,5 +328,24 @@ export class ProductService {
             return FAIL(error?.message, 500)
         }
     }
+
+
+    async bulkDeleteProducts(ids: string[]): Promise<{ ok: boolean; val?: any; errMessage?: string; code?: number }> {
+        console.log({ ids })
+        try {
+            const result = await this.prismaService.product.deleteMany({
+                where: {
+                    id: { in: ids },
+                },
+            });
+            if (result.count === ids.length) {
+                return Succeed(result)
+            } else {
+                return FAIL("Some products not found", 404)
+            }
+        } catch (error) {
+            return FAIL(error.message, 500)
+        }
+    }
 }
 
