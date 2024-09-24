@@ -87,6 +87,7 @@ export class InquiryService {
     }
   }
 
+
   async removeInquiry(id: string) {
     try {
       await this.findOneByIdOrFail(id)
@@ -96,6 +97,26 @@ export class InquiryService {
       return Succeed(true)
     } catch (error) {
       return FAIL(error?.message, 500)
+    }
+  }
+
+
+
+  async bulkDeleteInquiries(ids: string[]): Promise<{ ok: boolean; val?: any; errMessage?: string; code?: number }> {
+    console.log({ ids })
+    try {
+      const result = await this.prismaService.inquiry.deleteMany({
+        where: {
+          id: { in: ids },
+        },
+      });
+      if (result.count === ids.length) {
+        return Succeed(result)
+      } else {
+        return FAIL("Some inquiries not found", 404)
+      }
+    } catch (error) {
+      return FAIL(error.message, 500)
     }
   }
 }

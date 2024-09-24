@@ -101,7 +101,7 @@ export class AuthController {
 
 
 
-    @Post('/logout')
+    @Post('logout')
     @ApiOperation({ summary: 'Logout the current user' })
     @ApiResponse({
         status: 200,

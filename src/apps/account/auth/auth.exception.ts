@@ -69,15 +69,22 @@ export class AuthenticationApplicationException {
   }
   invalidCodeVerification() {
     return this.service.throw({
-      status: HttpStatus.FORBIDDEN,
+      status: HttpStatus.BAD_REQUEST,
       code: 8,
       publicMessage: 'Code is incorrect',
+    })
+  }
+  invalidAuthProvider() {
+    return this.service.throw({
+      status: HttpStatus.CONFLICT,
+      code: 10,
+      publicMessage: 'Please continue with google to sign in',
     })
   }
 
   expiredCodeVerification() {
     return this.service.throw({
-      status: HttpStatus.FORBIDDEN,
+      status: HttpStatus.BAD_REQUEST,
       code: 9,
       publicMessage: 'Code is expired',
     })

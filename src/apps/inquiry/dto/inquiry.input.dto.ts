@@ -2,7 +2,7 @@
 import { PaginationInputs } from '@/common/dto/pagination.dto';
 import { ApiProperty, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
 import { InquiryStatus } from '@prisma/client';
-import { IsString, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsArray } from 'class-validator';
 
 
 
@@ -53,3 +53,13 @@ export class FilterInquiryWithPagination extends IntersectionType(
     FilterInquiry,
     PaginationInputs,
 ) { }
+
+export class BulkDeleteInquiryDto {
+    @IsArray()
+    @IsString({ each: true })
+    @ApiProperty({
+        type: [String],
+        description: 'Array of inquiry IDs to delete',
+    })
+    ids: string[];
+}

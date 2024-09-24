@@ -253,3 +253,13 @@ export class ProductDto extends CreateProductDto {
     @IsString()
     id: string;
 }
+
+export class BulkDeleteProductDto {
+    @IsArray()
+    @IsString({ each: true })
+    @ApiProperty({
+        type: [String],
+        description: 'Array of product IDs to delete',
+    })
+    ids: string[];
+}

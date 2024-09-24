@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { Request } from 'express'
 import { RequestHelper } from '../../common/util/request'
 import { Logger, LoggerService } from '../../libraries/logger'
-
+import { UserFromToken } from '@/common/constant'
+import { User } from '@prisma/client'
 
 
 
@@ -20,7 +21,7 @@ export class LoggingService {
   logOnStart(request: Request): void {
     const path = RequestHelper.getPath(request)
     const method = RequestHelper.getMethod(request)
-    const userId = request["user"]?.userId
+    const userId = request["user"] as (UserFromToken | User)
 
 
 
