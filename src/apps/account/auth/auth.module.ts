@@ -8,12 +8,14 @@ import { GoogleByAuthenticationController } from './authentication.google.contro
 import { GoogleModule } from '@/libraries/google';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy'; // assuming you have this folder
+import { ConfigurationModule } from '@/core/configuration';
 
 
 @Module({
     imports: [
         UserModule,
         CryptoModule,
+        ConfigurationModule,
         GoogleModule,
         PassportModule.register({ defaultStrategy: 'google' })
     ],
@@ -23,7 +25,10 @@ import { GoogleStrategy } from './strategies/google.strategy'; // assuming you h
         GoogleStrategy
 
     ],
-    controllers: [AuthController, GoogleByAuthenticationController]
+    controllers: [
+        AuthController,
+        GoogleByAuthenticationController
+    ]
 })
 export class AuthModule { }
 

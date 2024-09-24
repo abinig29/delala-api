@@ -18,7 +18,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { AuthGuard } from '@nestjs/passport'
 import { removeKeys } from '@/common/util/object'
 import { error } from 'node:console'
-import { ConfigService } from '@nestjs/config'
+import { ConfigurationService } from '@/core/configuration'
 
 
 @Controller(`${Endpoint.Auth}/google`)
@@ -31,8 +31,7 @@ export class GoogleByAuthenticationController {
     private authService: AuthService,
     private googleService: GoogleService,
     private loggerService: LoggerService,
-    private configService: ConfigService,
-    private exception: AuthenticationApplicationException,
+    private configService: ConfigurationService,
     private cookieService: CookieService,
     private cryptoService: CryptoService,
   ) {
