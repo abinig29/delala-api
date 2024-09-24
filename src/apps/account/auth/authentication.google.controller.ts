@@ -18,6 +18,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { AuthGuard } from '@nestjs/passport'
 import { removeKeys } from '@/common/util/object'
 import { error } from 'node:console'
+import { ConfigService } from '@nestjs/config'
 
 
 @Controller(`${Endpoint.Auth}/google`)
@@ -30,7 +31,7 @@ export class GoogleByAuthenticationController {
     private authService: AuthService,
     private googleService: GoogleService,
     private loggerService: LoggerService,
-    private eventService: EventService,
+    private configService: ConfigService,
     private exception: AuthenticationApplicationException,
     private cookieService: CookieService,
     private cryptoService: CryptoService,
@@ -57,7 +58,7 @@ export class GoogleByAuthenticationController {
     } catch (error) {
       await this.register(usr?.email, usr?.firstName + " " + usr?.lastName)
     }
-    return res.redirect(`http://localhost:3000/authenticating?token=${usr?.accessToken}&email=${usr?.email}`);
+    return res.redirect(`${this.configService.get('SERVER_GOOGLE_CLIENT_SECRET')}/authenticating?token=${usr?.accessToken}&email=${usr?.email}`);
   }
 
   private async register(
