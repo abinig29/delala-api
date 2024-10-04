@@ -67,6 +67,10 @@ export class CreateJobDetailsDto {
     @IsOptional()
     @IsString()
     description?: string;
+
+    @ApiProperty({ description: 'ID of the job category' })
+    @IsUUID()
+    jobCategoryId: string;
 }
 
 
@@ -75,9 +79,10 @@ export class CreateVehicleDetailsDto {
     @IsEnum(VehicleType)
     type: VehicleType;
 
-    @ApiProperty({ description: 'Make of the vehicle' })
-    @IsString()
-    make: string;
+    @ApiProperty({ description: 'make of the Car' })
+    @IsUUID()
+    @IsOptional()
+    makeId: string;
 
     @ApiProperty({ description: 'Model of the vehicle' })
     @IsString()

@@ -5,5 +5,7 @@ export enum Endpoint {
   Product = "product",
   Inquiry = "inquiry",
   Service = "service",
-  Classified = "classified"
+  Classified = "classified",
+  JobCategory = "jobCategory",
+  CarMake = "carMake"
 }

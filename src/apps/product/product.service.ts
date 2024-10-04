@@ -49,8 +49,16 @@ export class ProductService {
             where: { id },
             include: {
                 propertyDetail: true,
-                vehicleDetail: true,
-                jobDetail: true,
+                vehicleDetail: {
+                    include: {
+                        carMake: true
+                    }
+                },
+                jobDetail: {
+                    include: {
+                        jobCategory: true
+                    }
+                },
                 serviceDetail: {
                     include: {
                         service: true
@@ -134,6 +142,9 @@ export class ProductService {
             const serviceInfo = productInput?.serviceDetail
             const classifiedInfo = productInput?.classifiedDetail
 
+
+
+
             const product = await this.prismaService.product.create({
                 data: {
                     name: productInfo?.name,
@@ -158,14 +169,39 @@ export class ProductService {
                     ... (category === "JOB" && jobInfo && {
                         jobDetail: {
                             create: {
-                                ...jobInfo
+                                ... (jobInfo.jobCategoryId && {
+                                    jobCategory: {
+                                        connect: {
+                                            id: jobInfo.jobCategoryId
+                                        }
+                                    }
+                                }),
+                                salary: jobInfo?.salary,
+                                type: jobInfo?.type,
+                                company: jobInfo?.company,
+                                location: jobInfo.location
+
                             }
                         }
                     }),
                     ... (category === "VEHICLE" && vehicleInfo && {
                         vehicleDetail: {
                             create: {
-                                ...vehicleInfo
+                                ...(vehicleInfo.makeId && {
+                                    carMake: {
+                                        connect: {
+                                            id: vehicleInfo.makeId
+                                        }
+                                    }
+                                }),
+                                model: vehicleInfo?.model,
+                                price: vehicleInfo?.price,
+                                type: vehicleInfo?.type,
+                                condition: vehicleInfo?.condition,
+                                fuelType: vehicleInfo?.fuelType,
+                                transmission: vehicleInfo?.transmission,
+                                year: vehicleInfo?.year,
+                                mileage: vehicleInfo?.mileage,
                             }
                         }
                     }),
@@ -235,6 +271,42 @@ export class ProductService {
             const jobInfo = productInput?.jobDetail
             const serviceInfo = productInput?.serviceDetail
             const classifiedInfo = productInput?.classifiedDetail
+            const foundProduct = await this.findPopulatedByIdOrFail(productId)
+            const populatedOne = this.populatedData(foundProduct)
+            console.log({ populatedOne })
+            await this.prismaService.product.update({
+                where: {
+                    id: productId
+                },
+                data: {
+                    ... (populatedOne === "propertyDetail" && {
+                        propertyDetail: {
+                            delete: {}
+                        },
+                    }),
+                    ... (populatedOne === "classifiedDetail" && {
+                        classifiedDetail: {
+                            delete: {}
+                        },
+                    }),
+                    ... (populatedOne === "vehicleDetail" && {
+                        vehicleDetail: {
+                            delete: {}
+                        },
+                    }),
+                    ... (populatedOne === "serviceDetail" && {
+                        serviceDetail: {
+                            delete: {}
+                        },
+                    }),
+                    ... (populatedOne === "jobDetail" && {
+                        jobDetail: {
+                            delete: {}
+                        },
+                    }),
+                }
+            })
+
 
             const product = await this.prismaService.product.update({
                 where: {
@@ -242,73 +314,128 @@ export class ProductService {
                 },
                 data: {
                     ...productInfo,
-                    ... (category === "PROPERTY" && propertyInfo && {
+                    ...(category === "PROPERTY" && propertyInfo && {
                         propertyDetail: {
-                            update: {
-                                ...propertyInfo
-                            }
+                            upsert: {
+                                create: {
+                                    ...propertyInfo
+                                },
+                                update: {
+                                    ...propertyInfo
+                                }
+                            },
                         }
                     }),
-                    ... (category === "VEHICLE" && vehicleInfo && {
+                    ...(category === "VEHICLE" && vehicleInfo && {
                         vehicleDetail: {
-                            update: {
-                                ...vehicleInfo
-                            }
+                            upsert: {
+                                create: {
+                                    carMake: vehicleInfo?.makeId
+                                        ? { connect: { id: vehicleInfo.makeId } }
+                                        : undefined,
+                                    model: vehicleInfo?.model,
+                                    price: vehicleInfo?.price,
+                                    type: vehicleInfo?.type,
+                                    condition: vehicleInfo?.condition,
+                                    fuelType: vehicleInfo?.fuelType,
+                                    transmission: vehicleInfo?.transmission,
+                                    year: vehicleInfo?.year,
+                                    mileage: vehicleInfo?.mileage
+                                },
+                                update: {
+                                    carMake: vehicleInfo?.makeId
+                                        ? { connect: { id: vehicleInfo.makeId } }
+                                        : undefined,
+                                    model: vehicleInfo?.model,
+                                    price: vehicleInfo?.price,
+                                    type: vehicleInfo?.type,
+                                    condition: vehicleInfo?.condition,
+                                    fuelType: vehicleInfo?.fuelType,
+                                    transmission: vehicleInfo?.transmission,
+                                    year: vehicleInfo?.year,
+                                    mileage: vehicleInfo?.mileage
+                                }
+                            },
                         }
                     }),
-                    ... (category === "JOB" && jobInfo && {
+                    ...(category === "JOB" && jobInfo && {
                         jobDetail: {
-                            update: {
-                                ...jobInfo
-                            }
-                        }
-                    }),
-                    ... (category === "SERVICE" && serviceInfo && {
-                        serviceDetail: {
-                            update: {
-                                ... (serviceInfo?.price && { price: serviceInfo?.price, }),
-                                ...  (serviceInfo?.serviceId && {
-                                    service: {
-                                        connect: {
-                                            id: serviceInfo?.serviceId
-                                        }
-                                    }
-                                })
-                            }
-                        }
-                    }),
-                    ... (category === "CLASSIFIED" && classifiedInfo && {
-                        classifiedDetail: {
-                            update: {
-                                ... (classifiedInfo?.price && { price: classifiedInfo?.price, }),
-                                ...(classifiedInfo?.categoryId && {
-                                    category: {
-                                        connect: {
-                                            id: classifiedInfo?.categoryId
-                                        }
-                                    }
-                                }),
-                                ...(classifiedInfo?.subCategoryId && {
-                                    subCategory: {
-                                        connect: {
-                                            id: classifiedInfo?.subCategoryId
-                                        }
-                                    }
-                                }),
-                                ...(classifiedInfo?.lastCategoryId && {
-                                    lastCategory: {
-                                        connect: {
-                                            id: classifiedInfo?.lastCategoryId
-                                        }
-                                    }
-                                })
+                            upsert: {
+                                create: {
+                                    jobCategory: jobInfo?.jobCategoryId
+                                        ? { connect: { id: jobInfo.jobCategoryId } }
+                                        : undefined,
+                                    salary: jobInfo?.salary,
+                                    type: jobInfo?.type,
+                                    company: jobInfo?.company,
+                                    location: jobInfo?.location
+                                },
+                                update: {
+                                    jobCategory: jobInfo?.jobCategoryId
+                                        ? { connect: { id: jobInfo.jobCategoryId } }
+                                        : undefined,
+                                    salary: jobInfo?.salary,
+                                    type: jobInfo?.type,
+                                    company: jobInfo?.company,
+                                    location: jobInfo?.location
+                                }
+                            },
 
-                            }
+                        }
+                    }),
+                    ...(category === "SERVICE" && serviceInfo && {
+                        serviceDetail: {
+                            upsert: {
+                                create: {
+                                    price: serviceInfo?.price,
+                                    service: serviceInfo?.serviceId
+                                        ? { connect: { id: serviceInfo.serviceId } }
+                                        : undefined
+                                },
+                                update: {
+                                    price: serviceInfo?.price,
+                                    service: serviceInfo?.serviceId
+                                        ? { connect: { id: serviceInfo.serviceId } }
+                                        : undefined
+                                }
+                            },
+
+                        }
+                    }),
+                    ...(category === "CLASSIFIED" && classifiedInfo && {
+                        classifiedDetail: {
+                            upsert: {
+                                create: {
+                                    price: classifiedInfo?.price,
+                                    category: classifiedInfo?.categoryId
+                                        ? { connect: { id: classifiedInfo.categoryId } }
+                                        : undefined,
+                                    subCategory: classifiedInfo?.subCategoryId
+                                        ? { connect: { id: classifiedInfo.subCategoryId } }
+                                        : undefined,
+                                    lastCategory: classifiedInfo?.lastCategoryId
+                                        ? { connect: { id: classifiedInfo.lastCategoryId } }
+                                        : undefined
+                                },
+                                update: {
+                                    price: classifiedInfo?.price,
+                                    category: classifiedInfo?.categoryId
+                                        ? { connect: { id: classifiedInfo.categoryId } }
+                                        : undefined,
+                                    subCategory: classifiedInfo?.subCategoryId
+                                        ? { connect: { id: classifiedInfo.subCategoryId } }
+                                        : undefined,
+                                    lastCategory: classifiedInfo?.lastCategoryId
+                                        ? { connect: { id: classifiedInfo.lastCategoryId } }
+                                        : undefined
+                                }
+                            },
                         }
                     })
-                },
+                }
+            });
 
-            })
+
             return Succeed(product)
         } catch (e) {
             return FAIL(e.message, 500);
@@ -346,6 +473,23 @@ export class ProductService {
         } catch (error) {
             return FAIL(error.message, 500)
         }
+    }
+
+
+    populatedData(product: any): string {
+        const populatedDetails = {
+            propertyDetail: product?.propertyDetail || null,
+            vehicleDetail: product?.vehicleDetail || null,
+            jobDetail: product?.jobDetail || null,
+            serviceDetail: product?.serviceDetail || null,
+            classifiedDetail: product?.classifiedDetail || null,
+        };
+
+        // Find the first populated detail
+        const firstPopulated = Object.entries(populatedDetails).find(
+            ([_, value]) => value !== null
+        );
+        return firstPopulated ? firstPopulated[0] : 'No populated details';
     }
 }
 

@@ -174,7 +174,8 @@ model VehicleDetails {
   product      Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String            @unique
   type         VehicleType
-  make         String
+  makeId       String
+  carMake      CarMake           @relation(fields: [makeId], references: [id], onDelete: Cascade)
   model        String
   year         Int?
   price        Float
@@ -203,7 +204,9 @@ model JobDetails {
   location    String?
   salary      Float?
   type        JobType
-  description String?
+
+  jobCategoryId String
+  jobCategory   JobCategory @relation(fields: [jobCategoryId], references: [id], onDelete: Cascade)
 }
 
 model ServiceDetails {
@@ -236,6 +239,20 @@ model Service {
   name          String
   icon          String?
   ServiceDetais ServiceDetails[]
+}
+
+model JobCategory {
+  id         String       @id @default(uuid())
+  name       String
+  icon       String?
+  JobDetails JobDetails[]
+}
+
+model CarMake {
+  id             String           @id @default(uuid())
+  name           String
+  icon           String?
+  VehicleDetails VehicleDetails[]
 }
 
 model MainCategory {

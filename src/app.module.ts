@@ -19,8 +19,11 @@ import { ProductModule } from './apps/product/product.module';
 import { InquiryModule } from './apps/inquiry/inquiry.module';
 import { UploadModule } from './libraries/upload';
 import { UploadApplicationModule } from './apps/upload/upload.module';
-import { ServiceModule } from './apps/service/service.module';
-import { ClassifiedModule } from './apps/classified/classified.module';
+
+import { ServiceModule } from './apps/filter';
+import { ClassifiedModule } from './apps/filter';
+import { CarMakeModule } from './apps/filter';
+import { JobCategoryModule } from './apps/filter';
 
 
 
@@ -47,7 +50,9 @@ import { ClassifiedModule } from './apps/classified/classified.module';
     UploadModule,
     ClassifiedModule,
     ServiceModule,
-    UploadApplicationModule
+    UploadApplicationModule,
+    JobCategoryModule,
+    CarMakeModule
   ],
   controllers: [],
   providers: [
