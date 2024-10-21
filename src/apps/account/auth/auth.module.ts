@@ -10,7 +10,6 @@ import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './strategies/google.strategy'; // assuming you have this folder
 import { ConfigurationModule } from '@/core/configuration';
 
-
 @Module({
     imports: [
         UserModule,
@@ -22,13 +21,14 @@ import { ConfigurationModule } from '@/core/configuration';
     providers: [
         AuthService,
         AuthenticationApplicationException,
-        GoogleStrategy
+        GoogleStrategy,
 
     ],
     controllers: [
         AuthController,
         GoogleByAuthenticationController
-    ]
+    ],
+    exports: [AuthService]
 })
 export class AuthModule { }
 

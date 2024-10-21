@@ -174,9 +174,37 @@ export class AuthService {
         return Succeed({ authToken: loginAuthToken, userData: pickedUser });
     }
 
-    async loginValidateUser(input: LoginUserInput): Promise<Partial<User>> {
+
+
+    async adminLogin(input: LoginUserInput, response: Response): Promise<Resp<AuthTokenResponse>> {
+        const user: Partial<User> = await this.loginValidateUser(input, ["ADMIN", "SUPER_ADMIN"]);
+        const pickedUser = removeKeys(user, [
+            'password',
+            'hashedRefreshToken',
+            'verificationCodeHash',
+            'verificationCodeExpires',
+            "accountStatus"
+        ]) as User;
+        const loginAuthToken: AuthToken = await this.generateAuthToken({
+            id: user.id,
+            role: user?.role,
+        });
+
+        if (!loginAuthToken) return FAIL(ResponseConst.INTERNAL_ERROR);
+        const hashedRefreshToken = await this.cryptoService.createHash(loginAuthToken.refreshToken);
+        await this.usersService.upsertOne(
+            { id: user?.id },
+            {
+                hashedRefreshToken,
+            },
+        );
+        this.cookieService.setAccessToken(response, loginAuthToken?.refreshToken)
+        return Succeed({ authToken: loginAuthToken, userData: pickedUser });
+    }
+
+    async loginValidateUser(input: LoginUserInput, roles?: RoleType[]): Promise<Partial<User>> {
         const { email, password } = input;
-        const userToLogin = await this.usersService.findOneByEmailOrFail(email);
+        const userToLogin = await this.usersService.findOneByEmailOrFail(email, roles);
         if (userToLogin?.authProvider != AUTH_PROVIDER.CREDENTIAL) this.exception.invalidAuthProvider()
         const pwdHashMatch = await this.cryptoService.verifyHash(userToLogin.password, password);
         if (!pwdHashMatch) this.exception.userPasswordNotFound(email)

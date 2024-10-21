@@ -33,11 +33,12 @@ enum ACCOUNT_STATUS {
 enum AUTH_PROVIDER {
   CREDENTIAL
   GOOGLE
+  TELEGRAM
 }
 
 model User {
   id                      String         @id @default(uuid())
-  email                   String         @unique
+  email                   String?         @unique
   password                String?
   fullName                String?        @map("full_name")
   firstTimeLogin          Boolean        @default(true) @map("first_time_togin")
@@ -50,6 +51,7 @@ model User {
   authProvider            AUTH_PROVIDER? @default(CREDENTIAL)
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @default(now()) @updatedAt
+  telegramUserId          String?
 
   profile Profile?
   Product Product[]
@@ -59,7 +61,7 @@ model User {
 
 model Profile {
   id      String  @id @default(uuid())
-  phone   String? @unique
+  phone   String?
   avatar  String?
   address String?
   user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -177,6 +179,7 @@ model VehicleDetails {
   makeId       String
   carMake      CarMake           @relation(fields: [makeId], references: [id], onDelete: Cascade)
   model        String
+  intent       ProductIntent     @default(FOR_SALE)
   year         Int?
   price        Float
   fuelType     FuelType?
@@ -200,10 +203,10 @@ model JobDetails {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String  @unique
 
-  company     String?
-  location    String?
-  salary      Float?
-  type        JobType
+  company  String?
+  location String?
+  salary   Float?
+  type     JobType
 
   jobCategoryId String
   jobCategory   JobCategory @relation(fields: [jobCategoryId], references: [id], onDelete: Cascade)

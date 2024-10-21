@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserException } from './user.exception';
 import { PrismaService } from 'src/core/database/prisma.service';
-import { Prisma, Profile, User } from '@prisma/client';
+import { AdminStatus, Prisma, Profile, RoleType, User } from '@prisma/client';
 import { Utility } from 'src/common/util/url';
 import { ExtendedUser, FAIL, Resp, RoleEnum, Succeed } from 'src/common/constant';
 import { ChangePasswordInput } from '../auth/dto/auth.input.dto';
@@ -10,6 +10,7 @@ import { UpdateMeDto } from '../profile/dto/profile.dto';
 import { CreateUser, UpdateUserWithRole } from './dto/user.dto';
 import { PrismaGenericRepository } from '@/core/database/prisma.repository';
 import { PaginatedResponse, PaginationInputs } from '@/common/dto/pagination.dto';
+import { pickKeys, removeKeys } from '@/common/util/object';
 
 
 
@@ -34,15 +35,49 @@ export class UserService {
             filter,
             fieldsToSearch,
             pagination,
+            {
+                profile: true,
+                _count: {
+                    select: {
+                        Product: {
+                            where: {
+                                adminStatus: AdminStatus?.APPROVED,
+                            },
+                        },
+                    },
+                },
+            }
         );
-        return data
+
+        const refined = data?.values?.map(user => {
+            const pickedUser = removeKeys(user, [
+                'password',
+                'hashedRefreshToken',
+                'verificationCodeHash',
+                'verificationCodeExpires',
+                "accountStatus",
+                "_count"
+            ])
+            const post = user?._count?.Product
+            return { ...pickedUser, post }
+
+        })
+        return { ...data, values: refined }
 
     }
 
 
-    async findOneByEmailOrFail(email: string): Promise<User> {
+    async findOneByEmailOrFail(email: string, roles?: RoleType[]): Promise<User> {
         const user = await this.prismaService.user.findUnique({
-            where: { email: email.trim(), active: true },
+            where: {
+                email: email.trim(),
+                active: true,
+                ... (roles?.length && {
+                    role: {
+                        in: roles
+                    }
+                })
+            },
         })
         if (!user) {
             this.exception.notFoundByEmail(email)
@@ -84,7 +119,6 @@ export class UserService {
             }
         })
     }
-
     async findUserWithProfileOrFail(id: string) {
         const user = await this.prismaService.user.findUnique({
             where: { id, active: true },
@@ -104,9 +138,15 @@ export class UserService {
         }
         return Succeed(user);
     }
-    async findOneByEmail(email: string): Promise<User> {
+    async findOneByEmail(email: string,): Promise<User> {
         const user = await this.prismaService.user.findUnique({
-            where: { email: email.trim(), active: true },
+            where: { email: email.trim(), },
+        })
+        return user
+    }
+    async findOneByTelegramUserId(userId: string,): Promise<User> {
+        const user = await this.prismaService.user.findFirst({
+            where: { telegramUserId: userId },
         })
         return user
     }
@@ -139,8 +179,6 @@ export class UserService {
         }
         return user
     }
-
-
     async findOneById(id: string): Promise<User> {
         const user = await this.prismaService.user.findUnique({
             where: { id, active: true },
@@ -158,8 +196,6 @@ export class UserService {
         }
 
     }
-
-
     async updateById(id: string, input: UpdateUserWithRole): Promise<Resp<ExtendedUser>> {
         const { role, phone, address, ...rest } = input;
         try {
@@ -181,6 +217,7 @@ export class UserService {
                     email: true,
                     role: true,
                     profile: true,
+                    active: true
                 },
             });
             return Succeed(updatedUser)
@@ -189,7 +226,6 @@ export class UserService {
         }
 
     }
-
     async findOneByEmailWithPassword(email: string): Promise<Partial<User>> {
         const user = await this.prismaService.user.findFirst({
             where: { email: email.trim(), active: true },
@@ -207,7 +243,7 @@ export class UserService {
 
         return user
     }
-    async registerUser(userInput: Partial<User>): Promise<User> {
+    async registerUser(userInput: Partial<User>, phone?: string): Promise<User> {
         const user = {
             ...userInput,
         } as User
@@ -220,23 +256,23 @@ export class UserService {
                 ...user,
                 profile: {
                     create: {
+                        ... (phone && { phone: phone })
                     }
                 }
             }
         })
     }
-
-
     async createUser(userInput: CreateUser): Promise<Resp<ExtendedUser>> {
+        const { phone, address, ...rest } = userInput
         try {
             const user = await this.prismaService.user.create({
                 data: {
-                    ...userInput,
+                    ...rest,
                     role: userInput?.role as RoleEnum,
                     profile: {
                         create: {
-                            address: userInput?.address,
-                            phone: userInput?.phone
+                            address: address,
+                            phone: phone
                         }
                     }
                 },
@@ -245,10 +281,13 @@ export class UserService {
                     fullName: true,
                     email: true,
                     role: true,
-                    profile: true
+                    active: true,
+                    profile: true,
+                    createdAt: true,
+                    updatedAt: true
                 }
             })
-            Succeed(user)
+            return Succeed(user)
         } catch (e) {
             return FAIL(e.message, 500);
 

@@ -1,4 +1,4 @@
-import { ApiProperty, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
 import { IsEmail, IsString, IsOptional, IsNotEmpty, IsBoolean, IsEmpty } from 'class-validator';
 import { RegisterUserInput } from '../../auth/dto/auth.input.dto';
 import { RoleType } from '@prisma/client';
@@ -44,7 +44,7 @@ export class CreateUser extends OmitType(UserDto, ['id']) {
     address?: string;
 
 
-    @ApiProperty({ description: 'The active status of the user' })
+    @ApiHideProperty()
     @IsBoolean()
     @IsOptional()
     active?: boolean;

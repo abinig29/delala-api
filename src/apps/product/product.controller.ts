@@ -61,7 +61,7 @@ export class ProductController {
   @UseGuards(JwtGuard, ProductOwnerGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update product' })
-  @ApiBody({ type: CreateProductDto })
+  @ApiBody({ type: UpdateProductDto })
   @ApiResponse({
     status: 200,
     description: 'Product updated successfully',
@@ -75,9 +75,9 @@ export class ProductController {
 
 
   @Get()
-  // @Roles(RoleType.ADMIN)
-  // @UseGuards(JwtGuard)
-  // @ApiBearerAuth()
+  @Roles(RoleType.ADMIN)
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Fetch all products for admin' })
   async findMany(@Query() inputQuery: FilterProductWithPagination): Promise<PaginatedResponse<Product>> {
     const paginateQuery = pickKeys(inputQuery, [...pagiKeys, 'searchText']);

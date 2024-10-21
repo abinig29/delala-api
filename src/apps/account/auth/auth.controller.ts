@@ -99,6 +99,24 @@ export class AuthController {
     }
 
 
+    @Post('adminLogin')
+    @ApiOperation({ summary: 'Login admin with email and password' })
+    @ApiBody({ type: LoginUserInput })
+    @ApiResponse({
+        status: 200,
+        description: 'Login successful',
+        type: AuthTokenResponse,
+    })
+
+    async adminLogin(
+        @Res({ passthrough: true }) response: Response,
+        @Body() input: LoginUserInput,
+    ): Promise<AuthTokenResponse> {
+        const res = await this.authService.adminLogin(input, response);
+        return res.val;
+    }
+
+
 
 
     @Post('logout')

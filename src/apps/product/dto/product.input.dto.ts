@@ -84,6 +84,10 @@ export class CreateVehicleDetailsDto {
     @IsOptional()
     makeId: string;
 
+    @ApiProperty({ enum: ProductIntent, description: 'Sale or rental status of the Vehicle' })
+    @IsEnum(ProductIntent)
+    intent: ProductIntent = ProductIntent.FOR_SALE
+
     @ApiProperty({ description: 'Model of the vehicle' })
     @IsString()
     model: string;
@@ -245,7 +249,7 @@ export class UpdateProductStatusDto {
 
 export class UpdateProductDto extends PartialType(OmitType(CreateProductDto, ['adminStatus'])) { }
 
-export class FilterProduct extends PartialType(OmitType(CreateProductDto, ["images", "features", "description", "propertyDetail", "vehicleDetail", "status"])) { }
+export class FilterProduct extends PartialType(OmitType(CreateProductDto, ["images", "features", "description", "propertyDetail", "classifiedDetail", "jobDetail", "serviceDetail", "vehicleDetail", "status"])) { }
 
 export class FilterProductWithPagination extends IntersectionType(
     FilterProduct,

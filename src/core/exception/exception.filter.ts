@@ -33,7 +33,7 @@ export class ExceptionFilter implements NestExceptionFilter {
     } else if (exception instanceof PrismaClientValidationError) {
       return this.handlePrismaClientValidationError(exception);
     } else {
-      return this.handleUnknownException();
+      return this.handleUnknownException(exception);
     }
   }
 
@@ -64,7 +64,8 @@ export class ExceptionFilter implements NestExceptionFilter {
     };
   }
 
-  private handleUnknownException() {
+  private handleUnknownException(exception: any) {
+    console.log({ exception })
     return {
       status: 500, // Internal Server Error
       message: 'Internal server error',

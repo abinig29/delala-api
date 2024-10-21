@@ -31,13 +31,14 @@ export class ProductService {
             filter,
             fieldsToSearch,
             pagination,
+            { user: true }
         );
         return data
 
     }
     async findOneByIdOrFail(id: string): Promise<Product> {
         const product = await this.prismaService.product.findUnique({
-            where: { id },
+            where: { id, },
         })
         if (!product) {
             this.exception.notFoundById(id)
@@ -194,6 +195,7 @@ export class ProductService {
                                         }
                                     }
                                 }),
+                                intent: vehicleInfo?.intent,
                                 model: vehicleInfo?.model,
                                 price: vehicleInfo?.price,
                                 type: vehicleInfo?.type,

@@ -24,6 +24,9 @@ import { ServiceModule } from './apps/filter';
 import { ClassifiedModule } from './apps/filter';
 import { CarMakeModule } from './apps/filter';
 import { JobCategoryModule } from './apps/filter';
+import { TelegramModule } from './libraries/telegram/telegram.module';
+
+
 
 
 
@@ -52,7 +55,8 @@ import { JobCategoryModule } from './apps/filter';
     ServiceModule,
     UploadApplicationModule,
     JobCategoryModule,
-    CarMakeModule
+    CarMakeModule,
+    TelegramModule
   ],
   controllers: [],
   providers: [
